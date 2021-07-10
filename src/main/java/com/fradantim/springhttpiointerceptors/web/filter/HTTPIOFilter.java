@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ReadListener;
@@ -68,9 +69,7 @@ public class HTTPIOFilter extends OncePerRequestFilter{
 	private HasBuffer getBodyBufferHolder(ByteArrayPrintWriter pw, ServletResponse response) throws IOException {
 		final byte[] bytes = pw.toByteArray();
 		response.getOutputStream().write(bytes);
-		return new HasBuffer() {
-			public byte[] getBuffer() { return bytes; }
-		};
+		return () -> bytes; 
 	}
 
 	private void printResponseInfo(HttpServletResponse servletResponse, HasBuffer hasBuffer) {
@@ -113,7 +112,7 @@ public class HTTPIOFilter extends OncePerRequestFilter{
 	}
 	
 	/** Returns a String with the format: "{key1=( valuek1a, valuek1b ), key2=( valuek2a, valuek2b ), (...) }" */ 
-	private static String getHeaders(Collection<String> headerNames, Function<String, String> headerValueProvider) {
+	private static String getHeaders(Collection<String> headerNames, UnaryOperator<String> headerValueProvider) {
 		StringBuilder result = new StringBuilder(); 
 		result.append("{");
 		
