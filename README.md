@@ -184,10 +184,10 @@ public class WebConfig {
 	@Bean
 	@ConditionalOnExpression("${web.config.intercept-rest-client:false}")
 	public RestTemplate getInterceptedRT() {
-		RestTemplate rt = new RestTemplate();
+		// Buffered so the response can be read more than 1 time
+		RestTemplate rt = new RestTemplate(new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()));
 		HTTPIOInterceptor interceptor = new HTTPIOInterceptor();
 		rt.setInterceptors(Arrays.asList(interceptor));
-		rt.setErrorHandler(interceptor);
 		return rt;
 	}
 

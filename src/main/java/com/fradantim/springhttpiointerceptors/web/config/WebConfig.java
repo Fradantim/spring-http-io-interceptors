@@ -10,6 +10,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.BufferingClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 import com.fradantim.springhttpiointerceptors.web.client.interceptor.HTTPIOInterceptor;
@@ -20,7 +22,7 @@ public class WebConfig {
 
 	@Value("${web.config.interceptable-urls}")
 	public String[] interceptableUrls;
-	
+
 	@Bean
 	public FilterRegistrationBean<Filter> filterRegistrationBean() {
 		FilterRegistrationBean<Filter> registrationBean = new FilterRegistrationBean<Filter>();
@@ -35,10 +37,10 @@ public class WebConfig {
 	@Bean
 	@ConditionalOnExpression("${web.config.intercept-rest-client:false}")
 	public RestTemplate getInterceptedRT() {
-		RestTemplate rt = new RestTemplate();
+		// Buffered so the response can be read more than 1 time
+		RestTemplate rt = new RestTemplate(new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()));
 		HTTPIOInterceptor interceptor = new HTTPIOInterceptor();
 		rt.setInterceptors(Arrays.asList(interceptor));
-		rt.setErrorHandler(interceptor);
 		return rt;
 	}
 

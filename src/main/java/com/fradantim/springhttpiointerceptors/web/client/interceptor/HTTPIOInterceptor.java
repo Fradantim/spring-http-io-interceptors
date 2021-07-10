@@ -15,16 +15,10 @@ import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.StreamUtils;
-import org.springframework.web.client.DefaultResponseErrorHandler;
-import org.springframework.web.client.ResponseErrorHandler;
 
-public class HTTPIOInterceptor implements ClientHttpRequestInterceptor, ResponseErrorHandler {
+public class HTTPIOInterceptor implements ClientHttpRequestInterceptor {
 	
 	private static Logger logger = LoggerFactory.getLogger(HTTPIOInterceptor.class);
-	
-	private final static ResponseErrorHandler DEFAULT_ERROR_HANDLER = new DefaultResponseErrorHandler();
-	
-	private ResponseErrorHandler specificErrorHandler;
 	
 	@Override
 	public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
@@ -36,29 +30,6 @@ public class HTTPIOInterceptor implements ClientHttpRequestInterceptor, Response
         
         printResponseInfo(response);
         return response;
-	}
-	
-	public void setErrorHandler(ResponseErrorHandler errorHandler) {
-		this.specificErrorHandler = errorHandler;
-	}
-	
-	private ResponseErrorHandler getResponseErrorHandler() {
-		if(specificErrorHandler != null) {
-			return specificErrorHandler;
-		} else {
-			return DEFAULT_ERROR_HANDLER;
-		}
-	}
-
-	@Override
-	public boolean hasError(ClientHttpResponse response) throws IOException {
-		return getResponseErrorHandler().hasError(response);
-	}
-
-	@Override
-	public void handleError(ClientHttpResponse response) throws IOException {
-		// interceptedRestTemplate.buildResponseInfo(response);
-		getResponseErrorHandler().handleError(response);
 	}
 	
 	protected void printRequestInfo(HttpRequest httpRequest, byte[] body) {
